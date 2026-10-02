@@ -20,3 +20,6 @@ Thumbs.db
 
 # VS Code settings
 .vscode/
+# Generated pipeline outputs
+data/processed/
+reports/
