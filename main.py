@@ -31,6 +31,13 @@ from src.optimization import (
     summarize_optimization,
 )
 
+from src.visualization import (
+    plot_forecast_vs_recommendation,
+    plot_holdout_actual_vs_predicted,
+    plot_model_rmse,
+    plot_resource_utilization,
+)
+
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 
@@ -51,6 +58,11 @@ PROCESSED_DATA_PATH = (
 REPORTS_DIR = (
     PROJECT_ROOT
     / "reports"
+)
+
+FIGURES_DIR = (
+    REPORTS_DIR
+    / "figures"
 )
 
 DEFAULT_BUDGET = 250_000.0
@@ -159,6 +171,34 @@ def run_optimization(
     return optimization_result, optimization_summary
 
 
+def run_visualizations(
+    forecasting_result: ForecastingResult,
+    optimization_result: pd.DataFrame,
+    optimization_summary: pd.DataFrame,
+) -> None:
+    """Generate and save forecasting and optimization visualizations."""
+
+    plot_model_rmse(
+        metrics=forecasting_result.metrics,
+        output_path=FIGURES_DIR / "model_rmse.png",
+    )
+
+    plot_holdout_actual_vs_predicted(
+        predictions=forecasting_result.test_predictions,
+        output_path=FIGURES_DIR / "holdout_actual_vs_predicted.png",
+    )
+
+    plot_forecast_vs_recommendation(
+        optimization_result=optimization_result,
+        output_path=FIGURES_DIR / "forecast_vs_recommendation.png",
+    )
+
+    plot_resource_utilization(
+        optimization_summary=optimization_summary,
+        output_path=FIGURES_DIR / "resource_utilization.png",
+    )
+
+
 def save_reports(
     forecasting_result: ForecastingResult,
     next_forecasts: pd.DataFrame,
@@ -231,6 +271,12 @@ def run_pipeline(
         next_forecasts=next_forecasts,
         budget=budget,
         capacity_units=capacity_units,
+    )
+
+    run_visualizations(
+        forecasting_result=forecasting_result,
+        optimization_result=optimization_result,
+        optimization_summary=optimization_summary,
     )
 
     save_reports(
